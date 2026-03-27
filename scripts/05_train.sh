@@ -6,7 +6,6 @@
 #   epochs:  number of training epochs (default: 30)
 set -e
 cd "$(dirname "$0")/.."
-
 VARIANT=${1:-all}
 EPOCHS=${2:-30}
 

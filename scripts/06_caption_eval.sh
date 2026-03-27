@@ -6,7 +6,6 @@
 #   model: blip2 | llava | both (default: both)
 set -e
 cd "$(dirname "$0")/.."
-
 MODEL=${1:-both}
 
 if [ ! -d "data/eval" ] || [ -z "$(ls -A data/eval 2>/dev/null)" ]; then

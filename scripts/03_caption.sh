@@ -6,7 +6,6 @@
 #   image_dir: path to images (default: data/food101)
 set -e
 cd "$(dirname "$0")/.."
-
 MODEL=${1:-both}
 IMAGE_DIR=${2:-data/food101}
 

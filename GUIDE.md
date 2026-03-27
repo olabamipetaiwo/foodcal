@@ -6,10 +6,21 @@ Step-by-step instructions to go from raw data to trained models to Gradio deploy
 
 ## Prerequisites
 
-Python 3.10+ recommended. Install all dependencies:
+Python 3.10+ recommended. `01_setup.sh` handles everything below automatically.
 
 ```bash
+# Create and activate the virtual environment
+python3 -m venv foodcal_env
+source foodcal_env/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
+```
+
+Or just run:
+
+```bash
+bash scripts/01_setup.sh
 ```
 
 ---
@@ -282,40 +293,3 @@ bash scripts/08_app.sh                    # launch Gradio app
 | Variant skipped during training | Check that the required `.pt` files exist in `embeddings/` |
 | Gradio app says "Model not loaded" | Run `train.py` first to generate checkpoints in `results/` |
 | McNemar skipped for a pair | Both variants must have been evaluated on the exact same eval set |
-
-
- python src/download_data.py --max_per_class 100 
-
-
- ⏺ Step 6 — after training is done.                                                                                                                                               
-                                                                                                                                  
-  By that point you'll have:
-  - Labels generated (Step 1)                                                                                                                                                    
-  - Food-101 downloaded (Step 2)                                                                                                                                                 
-  - Captions generated for training images (Step 3)                                                                                                                              
-  - Embeddings precomputed (Step 4)                                                                                                                                              
-  - All 5 variants trained (Step 5)                                                                                                                                              
-                                   
-  Then you take 30–50 photos of food at a dining hall or restaurant, drop them into data/eval/, and continue from Step 7 (caption the eval photos) → Step 8 (ablation) → Step 9  
-  (Gradio app).  
-
-
-
-
-# Create a new environment
-python3 -m venv rfr_env
-
-# Activate it
-source rfr_env/bin/activate
-
-# Install from the requirements file
-pip install -r requirements.txt
-
-
-# download data
-
-python src/download_data.py --max_per_class 100 
-
-
-
-

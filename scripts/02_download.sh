@@ -5,7 +5,6 @@
 #   max_per_class: images per class (default 100, use 0 for all ~750)
 set -e
 cd "$(dirname "$0")/.."
-
 MAX_PER_CLASS=${1:-100}
 
 echo "==> Downloading Food-101 (max_per_class=$MAX_PER_CLASS)..."

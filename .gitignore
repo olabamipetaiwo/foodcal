@@ -20,6 +20,7 @@ build/
 .eggs/
 
 # Virtual environments
+foodcal_env/
 .venv/
 venv/
 env/

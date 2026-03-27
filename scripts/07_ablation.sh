@@ -4,7 +4,6 @@
 # Outputs metrics, bar charts, and confusion matrices to results/
 set -e
 cd "$(dirname "$0")/.."
-
 echo "==> Running ablation study..."
 python src/ablation.py \
     --eval_dir data/eval \

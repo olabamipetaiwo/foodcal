@@ -3,7 +3,6 @@
 # Run: bash scripts/04_embed.sh
 set -e
 cd "$(dirname "$0")/.."
-
 echo "==> Precomputing embeddings..."
 python src/embed.py \
     --image_dir data/food101 \
