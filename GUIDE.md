@@ -287,3 +287,24 @@ python app.py
                                    
   Then you take 30–50 photos of food at a dining hall or restaurant, drop them into data/eval/, and continue from Step 7 (caption the eval photos) → Step 8 (ablation) → Step 9  
   (Gradio app).  
+
+
+
+
+# Create a new environment
+python3 -m venv rfr_env
+
+# Activate it
+source rfr_env/bin/activate
+
+# Install from the requirements file
+pip install -r requirements.txt
+
+
+# download data
+
+python src/download_data.py --max_per_class 100 
+
+
+
+
