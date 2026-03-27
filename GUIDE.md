@@ -248,17 +248,28 @@ api.upload_folder(
 
 ## Quick Reference — Full Run
 
+Use the shell scripts in `scripts/` — no need to type Python commands manually.
+
 ```bash
-pip install -r requirements.txt
-python src/label_mapping.py
-python src/caption.py --model both --image_dir data/food101
-python src/embed.py
-python src/train.py
-# (collect eval photos → data/eval/)
-python src/caption.py --model both --image_dir data/eval
-python src/ablation.py --eval_dir data/eval --label_file data/labels.json
-python app.py
+bash scripts/01_setup.sh                  # install deps + generate labels
+bash scripts/02_download.sh               # download Food-101 (100 imgs/class)
+bash scripts/03_caption.sh                # generate BLIP-2 + LLaVA captions
+bash scripts/04_embed.sh                  # precompute embeddings
+bash scripts/05_train.sh                  # train all 5 variants
+# — collect 30-50 eval photos → data/eval/ —
+bash scripts/06_caption_eval.sh           # caption your eval photos
+bash scripts/07_ablation.sh              # run ablation + generate figures
+bash scripts/08_app.sh                    # launch Gradio app
 ```
+
+### Script options
+
+| Script | Options |
+|---|---|
+| `02_download.sh` | `[max_per_class]` — e.g. `bash scripts/02_download.sh 50` |
+| `03_caption.sh` | `[model] [image_dir]` — e.g. `bash scripts/03_caption.sh blip2` |
+| `05_train.sh` | `[variant] [epochs]` — e.g. `bash scripts/05_train.sh multimodal_llava 50` |
+| `06_caption_eval.sh` | `[model]` — e.g. `bash scripts/06_caption_eval.sh blip2` |
 
 ---
 
@@ -271,19 +282,3 @@ python app.py
 | Variant skipped during training | Check that the required `.pt` files exist in `embeddings/` |
 | Gradio app says "Model not loaded" | Run `train.py` first to generate checkpoints in `results/` |
 | McNemar skipped for a pair | Both variants must have been evaluated on the exact same eval set |
-
-
- python src/download_data.py --max_per_class 100 
-
-
- ⏺ Step 6 — after training is done.                                                                                                                                               
-                                                                                                                                  
-  By that point you'll have:
-  - Labels generated (Step 1)                                                                                                                                                    
-  - Food-101 downloaded (Step 2)                                                                                                                                                 
-  - Captions generated for training images (Step 3)                                                                                                                              
-  - Embeddings precomputed (Step 4)                                                                                                                                              
-  - All 5 variants trained (Step 5)                                                                                                                                              
-                                   
-  Then you take 30–50 photos of food at a dining hall or restaurant, drop them into data/eval/, and continue from Step 7 (caption the eval photos) → Step 8 (ablation) → Step 9  
-  (Gradio app).  
