@@ -274,3 +274,16 @@ python app.py
 
 
  python src/download_data.py --max_per_class 100 
+
+
+ ⏺ Step 6 — after training is done.                                                                                                                                               
+                                                                                                                                  
+  By that point you'll have:
+  - Labels generated (Step 1)                                                                                                                                                    
+  - Food-101 downloaded (Step 2)                                                                                                                                                 
+  - Captions generated for training images (Step 3)                                                                                                                              
+  - Embeddings precomputed (Step 4)                                                                                                                                              
+  - All 5 variants trained (Step 5)                                                                                                                                              
+                                   
+  Then you take 30–50 photos of food at a dining hall or restaurant, drop them into data/eval/, and continue from Step 7 (caption the eval photos) → Step 8 (ablation) → Step 9  
+  (Gradio app).  
