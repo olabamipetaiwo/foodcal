@@ -1,0 +1,45 @@
+# Data — large files, not tracked
+data/food101/
+data/eval/
+
+# Precomputed caches
+captions/
+embeddings/
+
+# Model checkpoints
+results/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Hugging Face model cache
+~/.cache/huggingface/
+
+# Claude
+CLAUDE.md
+
+# Gradio temp files
+gradio_cached_examples/
+flagged/
