@@ -1,17 +1,14 @@
 # Data — large files, not tracked
 data/food101/
-<<<<<<< HEAD
-
-=======
 # data/eval/
->>>>>>> 23853484f683f252b1b3e5289e6c4765be8772b6
 
 # Precomputed caches
 captions/
 embeddings/
 
-# Model checkpoints
-results/
+# Model checkpoints — track best_model.pt and metrics, exclude figures and history
+results/**/*.png
+results/**/history.json
 
 # Python
 __pycache__/
@@ -48,3 +45,10 @@ CLAUDE.md
 # Gradio temp files
 gradio_cached_examples/
 flagged/
+
+# Environment / secrets
+.env
+
+
+# tmux new-session -d -s foodcal && tmux send-keys -t foodcal "cd /data/uzoamakaezeakunne/foodcal && source
+#   foodcal_env/bin/activate && CUDA_VISIBLE_DEVICES=1 bash scripts/06_caption_eval.sh" Enter && tmux attach -t foodcal

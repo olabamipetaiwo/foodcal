@@ -29,6 +29,7 @@ from PIL import Image
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 from dataset import LABEL2IDX, IDX2LABEL
 from model import build_model
+from nutrition import lookup_kcal
 
 # ---------------------------------------------------------------------------
 # Load best variant config
@@ -44,10 +45,21 @@ LABEL_COLORS = {
 }
 
 LABEL_DESCRIPTIONS = {
-    "Low":    "Under 400 kcal — lighter meal",
-    "Medium": "400–700 kcal — moderate meal",
-    "High":   "Over 700 kcal — high-calorie meal",
+    "Low":    "Under 300 kcal — lighter meal",
+    "Medium": "300–500 kcal — moderate meal",
+    "High":   "Over 500 kcal — high-calorie meal",
 }
+
+# Midpoint of each calorie class range used for weighted estimate
+# Low:    0–300   → midpoint 150
+# Medium: 300–500 → midpoint 400
+# High:   500–900 → midpoint 700
+CLASS_KCAL_MIDPOINTS = {"Low": 150, "Medium": 400, "High": 700}
+
+
+def estimate_kcal(confidences: dict) -> int:
+    """Weighted calorie estimate using class probabilities and range midpoints."""
+    return round(sum(confidences[cls] * CLASS_KCAL_MIDPOINTS[cls] for cls in confidences))
 
 
 def get_device():
@@ -107,9 +119,12 @@ def get_clip(device):
     global _clip_model, _clip_preprocess
     if _clip_model is None:
         import open_clip
-        _clip_model, _, _clip_preprocess = open_clip.create_model_and_transforms(
-            "ViT-B-32", pretrained="openai", device=device
-        )
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message=".*QuickGELU.*")
+            _clip_model, _, _clip_preprocess = open_clip.create_model_and_transforms(
+                "ViT-B-32", pretrained="openai", device=device
+            )
         _clip_model.eval()
     return _clip_model, _clip_preprocess
 
@@ -141,6 +156,8 @@ def get_llava(device):
         from transformers import LlavaForConditionalGeneration, AutoProcessor
         model_id = "llava-hf/llava-1.5-7b-hf"
         _llava_processor = AutoProcessor.from_pretrained(model_id)
+        _llava_processor.patch_size = 14
+        _llava_processor.vision_feature_select_strategy = "default"
         _llava_model = LlavaForConditionalGeneration.from_pretrained(
             model_id,
             torch_dtype=torch.float16 if str(device) != "cpu" else torch.float32,
@@ -263,18 +280,27 @@ def predict(image: Image.Image) -> tuple[str, dict, str]:
 
 def gradio_predict(image):
     if image is None:
-        return "No image provided", {}, ""
+        return "No image provided", {}, "", ""
 
     pil_image = Image.fromarray(image).convert("RGB")
     label, confidences, caption = predict(pil_image)
     description = LABEL_DESCRIPTIONS[label]
+    kcal = estimate_kcal(confidences)
 
     # Format confidence as labelled dict for Gradio Label component
     conf_display = {f"{k} ({LABEL_DESCRIPTIONS[k]})": v for k, v in confidences.items()}
 
     caption_out = caption if caption else "(image-only variant — no caption generated)"
     result_text = f"**{label}** — {description}"
-    return result_text, conf_display, caption_out
+
+    # Try USDA lookup using the caption; fall back to weighted estimate
+    db_kcal, db_match = lookup_kcal(caption) if caption else (None, None)
+    if db_kcal is not None:
+        kcal_out = f"~{db_kcal} kcal (USDA FoodData Central — \"{db_match}\")"
+    else:
+        kcal_out = f"~{kcal} kcal (weighted estimate)"
+
+    return result_text, conf_display, kcal_out, caption_out
 
 
 with gr.Blocks(title="FoodCal — Calorie Range Estimator") as demo:
@@ -295,6 +321,7 @@ with gr.Blocks(title="FoodCal — Calorie Range Estimator") as demo:
 
         with gr.Column():
             prediction_out = gr.Markdown(label="Prediction")
+            kcal_out = gr.Textbox(label="Estimated Calories", interactive=False)
             confidence_out = gr.Label(label="Confidence Scores", num_top_classes=3)
             caption_out = gr.Textbox(label="Generated Caption", interactive=False)
 
@@ -310,7 +337,7 @@ with gr.Blocks(title="FoodCal — Calorie Range Estimator") as demo:
     submit_btn.click(
         fn=gradio_predict,
         inputs=[image_input],
-        outputs=[prediction_out, confidence_out, caption_out],
+        outputs=[prediction_out, confidence_out, kcal_out, caption_out],
     )
 
     gr.Examples(
@@ -320,4 +347,4 @@ with gr.Blocks(title="FoodCal — Calorie Range Estimator") as demo:
 
 
 if __name__ == "__main__":
-    demo.launch(share=False)
+    demo.launch(share=True)

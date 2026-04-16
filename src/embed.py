@@ -62,13 +62,16 @@ def food_class_from_path(path: str) -> str:
 
 def embed_clip(image_paths: List[str], label_map: dict, out_path: str, batch_size: int = 32):
     import open_clip
+    import warnings
     from PIL import Image
 
     device = get_device()
     print(f"Loading CLIP ViT-B/32 on {device} ...")
-    model, _, preprocess = open_clip.create_model_and_transforms(
-        "ViT-B-32", pretrained="openai", device=device
-    )
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*QuickGELU.*")
+        model, _, preprocess = open_clip.create_model_and_transforms(
+            "ViT-B-32", pretrained="openai", device=device
+        )
     model.eval()
 
     keys, embeddings, labels = [], [], []

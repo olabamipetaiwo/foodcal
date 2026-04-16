@@ -123,8 +123,8 @@ FOOD101_KCAL = {
     "waffles": 540,
 }
 
-LOW_MAX = 400
-HIGH_MIN = 700
+LOW_MAX = 300
+HIGH_MIN = 500
 
 
 def kcal_to_label(kcal: int) -> str:

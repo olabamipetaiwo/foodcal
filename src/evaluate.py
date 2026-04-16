@@ -23,7 +23,9 @@ import sys
 
 import numpy as np
 import torch
-from typing import List
+import pillow_heif
+pillow_heif.register_heif_opener()
+from typing import List, Optional
 from PIL import Image
 from sklearn.metrics import (
     accuracy_score,
@@ -61,9 +63,12 @@ def get_device():
 
 def extract_clip_feature(image: Image.Image, device) -> torch.Tensor:
     import open_clip
-    model, _, preprocess = open_clip.create_model_and_transforms(
-        "ViT-B-32", pretrained="openai", device=device
-    )
+    import warnings
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*QuickGELU.*")
+        model, _, preprocess = open_clip.create_model_and_transforms(
+            "ViT-B-32", pretrained="openai", device=device
+        )
     model.eval()
     with torch.no_grad():
         t = preprocess(image).unsqueeze(0).to(device)
@@ -87,10 +92,14 @@ def caption_image_blip2(image: Image.Image, device) -> str:
         torch_dtype=torch.float16 if str(device) != "cpu" else torch.float32,
     ).to(device)
     model.eval()
-    inputs = processor(images=image, return_tensors="pt").to(device)
+    prompt = "Question: Describe the food in this image. Answer:"
+    inputs = processor(images=image, text=prompt, return_tensors="pt").to(device)
     with torch.no_grad():
         ids = model.generate(**inputs, max_new_tokens=80)
-    return processor.decode(ids[0], skip_special_tokens=True).strip()
+    text = processor.decode(ids[0], skip_special_tokens=True)
+    if prompt in text:
+        text = text[text.index(prompt) + len(prompt):].strip()
+    return text.strip()
 
 
 def caption_image_llava(image: Image.Image, device) -> str:
@@ -120,8 +129,8 @@ def build_feature_vector(
     image: Image.Image,
     variant: str,
     device,
-    blip2_caption: str | None = None,
-    llava_caption: str | None = None,
+    blip2_caption: Optional[str] = None,
+    llava_caption: Optional[str] = None,
 ) -> torch.Tensor:
     """Build the input feature for a single image given a variant."""
     if variant == "image_only":
@@ -154,9 +163,9 @@ def evaluate_on_eval_set(
     variant: str,
     ckpt_dir: str,
     eval_dir: str,
-    caption_blip2_file: str | None = None,
-    caption_llava_file: str | None = None,
-    label_file: str | None = None,
+    caption_blip2_file: Optional[str] = None,
+    caption_llava_file: Optional[str] = None,
+    label_file: Optional[str] = None,
 ) -> dict:
     device = get_device()
     ckpt = load_checkpoint(ckpt_dir)

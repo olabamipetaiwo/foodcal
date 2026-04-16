@@ -24,6 +24,8 @@ from pathlib import Path
 from typing import List
 
 import torch
+import pillow_heif
+pillow_heif.register_heif_opener()
 from PIL import Image
 from tqdm import tqdm
 
@@ -121,6 +123,8 @@ def load_llava():
     print(f"Loading LLaVA on {device} ...")
     model_id = "llava-hf/llava-1.5-7b-hf"
     processor = AutoProcessor.from_pretrained(model_id)
+    processor.patch_size = 14
+    processor.vision_feature_select_strategy = "default"
     model = LlavaForConditionalGeneration.from_pretrained(
         model_id,
         torch_dtype=torch.float16 if device != "cpu" else torch.float32,

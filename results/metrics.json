@@ -1,0 +1,87 @@
+{
+  "metrics": {
+    "image_only": {
+      "accuracy": 0.2907,
+      "macro_f1": 0.262
+    },
+    "text_blip2": {
+      "accuracy": 0.2326,
+      "macro_f1": 0.2192
+    },
+    "text_llava": {
+      "accuracy": 0.2442,
+      "macro_f1": 0.2209
+    },
+    "multimodal_blip2": {
+      "accuracy": 0.2674,
+      "macro_f1": 0.2528
+    },
+    "multimodal_llava": {
+      "accuracy": 0.2791,
+      "macro_f1": 0.2538
+    }
+  },
+  "mcnemar": {
+    "image_only vs text_blip2": {
+      "statistic": 1.7778,
+      "p_value": 0.1824,
+      "b": 7,
+      "c": 2
+    },
+    "image_only vs text_llava": {
+      "statistic": 0.6429,
+      "p_value": 0.4227,
+      "b": 9,
+      "c": 5
+    },
+    "image_only vs multimodal_blip2": {
+      "statistic": 0.125,
+      "p_value": 0.7237,
+      "b": 5,
+      "c": 3
+    },
+    "image_only vs multimodal_llava": {
+      "statistic": 0.0,
+      "p_value": 1.0,
+      "b": 6,
+      "c": 5
+    },
+    "text_blip2 vs text_llava": {
+      "statistic": 0.0,
+      "p_value": 1.0,
+      "b": 7,
+      "c": 8
+    },
+    "text_blip2 vs multimodal_blip2": {
+      "statistic": 0.8,
+      "p_value": 0.3711,
+      "b": 1,
+      "c": 4
+    },
+    "text_blip2 vs multimodal_llava": {
+      "statistic": 0.9,
+      "p_value": 0.3428,
+      "b": 3,
+      "c": 7
+    },
+    "text_llava vs multimodal_blip2": {
+      "statistic": 0.0625,
+      "p_value": 0.8026,
+      "b": 7,
+      "c": 9
+    },
+    "text_llava vs multimodal_llava": {
+      "statistic": 0.4444,
+      "p_value": 0.505,
+      "b": 3,
+      "c": 6
+    },
+    "multimodal_blip2 vs multimodal_llava": {
+      "statistic": 0.0,
+      "p_value": 1.0,
+      "b": 5,
+      "c": 6
+    }
+  },
+  "best_variant": "image_only"
+}

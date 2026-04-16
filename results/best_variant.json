@@ -1,0 +1,25 @@
+{
+  "best_variant": "multimodal_blip2",
+  "metrics": {
+    "image_only": {
+      "val_accuracy": 0.8792079207920792,
+      "val_f1": 0.8378106924752956
+    },
+    "text_blip2": {
+      "val_accuracy": 0.8877887788778878,
+      "val_f1": 0.8879053194175431
+    },
+    "text_llava": {
+      "val_accuracy": 0.8495049504950495,
+      "val_f1": 0.793772901397956
+    },
+    "multimodal_blip2": {
+      "val_accuracy": 0.9234323432343234,
+      "val_f1": 0.9133852494148925
+    },
+    "multimodal_llava": {
+      "val_accuracy": 0.9023102310231023,
+      "val_f1": 0.8760834537624417
+    }
+  }
+}
