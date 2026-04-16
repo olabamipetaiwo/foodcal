@@ -1,0 +1,97 @@
+{
+  "image_only": {
+    "mean_accuracy": 0.5935,
+    "std_accuracy": 0.0604,
+    "mean_macro_f1": 0.4592,
+    "fold_accuracies": [
+      0.5556,
+      0.7059,
+      0.5882,
+      0.5882,
+      0.5294
+    ],
+    "fold_f1s": [
+      0.5879,
+      0.6481,
+      0.4127,
+      0.4167,
+      0.2308
+    ]
+  },
+  "text_blip2": {
+    "mean_accuracy": 0.5699,
+    "std_accuracy": 0.0781,
+    "mean_macro_f1": 0.3699,
+    "fold_accuracies": [
+      0.5556,
+      0.5294,
+      0.5882,
+      0.4706,
+      0.7059
+    ],
+    "fold_f1s": [
+      0.2381,
+      0.2308,
+      0.4127,
+      0.3346,
+      0.6333
+    ]
+  },
+  "text_llava": {
+    "mean_accuracy": 0.6758,
+    "std_accuracy": 0.0707,
+    "mean_macro_f1": 0.4791,
+    "fold_accuracies": [
+      0.5556,
+      0.7647,
+      0.7059,
+      0.7059,
+      0.6471
+    ],
+    "fold_f1s": [
+      0.2381,
+      0.5344,
+      0.4974,
+      0.5185,
+      0.6071
+    ]
+  },
+  "multimodal_blip2": {
+    "mean_accuracy": 0.5817,
+    "std_accuracy": 0.0394,
+    "mean_macro_f1": 0.4577,
+    "fold_accuracies": [
+      0.5556,
+      0.5882,
+      0.6471,
+      0.5294,
+      0.5882
+    ],
+    "fold_f1s": [
+      0.5405,
+      0.5333,
+      0.4507,
+      0.2308,
+      0.5333
+    ]
+  },
+  "multimodal_llava": {
+    "mean_accuracy": 0.6405,
+    "std_accuracy": 0.0609,
+    "mean_macro_f1": 0.5728,
+    "fold_accuracies": [
+      0.5556,
+      0.7059,
+      0.7059,
+      0.5882,
+      0.6471
+    ],
+    "fold_f1s": [
+      0.5405,
+      0.6944,
+      0.4889,
+      0.5655,
+      0.5745
+    ]
+  }
+}

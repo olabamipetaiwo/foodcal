@@ -1,0 +1,54 @@
+# Data — large files, not tracked
+data/food101/
+# data/eval/
+
+# Precomputed caches
+captions/
+embeddings/
+
+# Model checkpoints — track best_model.pt and metrics, exclude figures and history
+results/**/*.png
+results/**/history.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+foodcal_env/
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Hugging Face model cache
+~/.cache/huggingface/
+
+# Claude
+CLAUDE.md
+
+# Gradio temp files
+gradio_cached_examples/
+flagged/
+
+# Environment / secrets
+.env
+
+
+# tmux new-session -d -s foodcal && tmux send-keys -t foodcal "cd /data/uzoamakaezeakunne/foodcal && source
+#   foodcal_env/bin/activate && CUDA_VISIBLE_DEVICES=1 bash scripts/06_caption_eval.sh" Enter && tmux attach -t foodcaldata/eval/*.jpg                                                                        data/eval/*.JPG                                                                              data/eval/*.jpeg                                                                             data/eval/*.WEBP  data/eval/*.webp                                                                             data/eval/*.heic                                                                           data/eval/*.png   data/eval/*.PNG
