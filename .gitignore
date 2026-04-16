@@ -1,6 +1,10 @@
 # Data — large files, not tracked
 data/food101/
+<<<<<<< HEAD
 
+=======
+# data/eval/
+>>>>>>> 23853484f683f252b1b3e5289e6c4765be8772b6
 
 # Precomputed caches
 captions/
