@@ -13,6 +13,7 @@ Variant names (used as keys throughout the codebase):
 
 import torch
 from torch.utils.data import Dataset
+from typing import List, Optional
 
 LABEL2IDX = {"Low": 0, "Medium": 1, "High": 2}
 IDX2LABEL = {v: k for k, v in LABEL2IDX.items()}
@@ -47,10 +48,10 @@ class FoodCalDataset(Dataset):
     def __init__(
         self,
         variant: str,
-        clip_store: dict | None = None,
-        sbert_blip2_store: dict | None = None,
-        sbert_llava_store: dict | None = None,
-        indices: list[int] | None = None,
+        clip_store: Optional[dict] = None,
+        sbert_blip2_store: Optional[dict] = None,
+        sbert_llava_store: Optional[dict] = None,
+        indices: Optional[List[int]] = None,
     ):
         assert variant in VARIANTS, f"Unknown variant: {variant}"
         self.variant = variant

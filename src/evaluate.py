@@ -23,6 +23,7 @@ import sys
 
 import numpy as np
 import torch
+from typing import List
 from PIL import Image
 from sklearn.metrics import (
     accuracy_score,
@@ -246,7 +247,7 @@ def evaluate_on_eval_set(
 # McNemar's test
 # ---------------------------------------------------------------------------
 
-def mcnemar_test(preds_a: list[int], preds_b: list[int], targets: list[int]) -> dict:
+def mcnemar_test(preds_a: List[int], preds_b: List[int], targets: List[int]) -> dict:
     """
     Compute McNemar's test between two classifiers on the same eval set.
     Returns p-value and test statistic.

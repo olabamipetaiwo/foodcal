@@ -19,6 +19,7 @@ import sys
 from pathlib import Path
 
 from tqdm import tqdm
+from typing import Dict
 
 
 def parse_args():
@@ -59,7 +60,7 @@ def download_food101(out_dir: str, max_per_class: int = 100, split: str = "train
         print(f"  {len(ds):,} images | {len(label_names)} classes")
 
         # Count already-saved images per class
-        counts: dict[str, int] = {}
+        counts: Dict[str, int] = {}
         for cls in label_names:
             cls_dir = out_root / cls
             cls_dir.mkdir(parents=True, exist_ok=True)

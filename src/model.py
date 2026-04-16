@@ -9,6 +9,7 @@ design decisions section.
 
 import torch
 import torch.nn as nn
+from typing import List
 
 
 class MLPClassifier(nn.Module):
@@ -25,7 +26,7 @@ class MLPClassifier(nn.Module):
     def __init__(
         self,
         input_dim: int,
-        hidden_dims: list[int] = [512, 256],
+        hidden_dims: List[int] = [512, 256],
         num_classes: int = 3,
         dropout: float = 0.3,
     ):

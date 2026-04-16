@@ -21,6 +21,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+from typing import List
 
 import torch
 from PIL import Image
@@ -39,7 +40,7 @@ def get_device():
     return "cpu"
 
 
-def collect_images(image_dir: str) -> list[Path]:
+def collect_images(image_dir: str) -> List[Path]:
     """Return sorted list of all .jpg/.jpeg/.png paths under image_dir."""
     root = Path(image_dir)
     images = sorted(
@@ -82,23 +83,29 @@ def load_blip2():
     return processor, model, device
 
 
-def caption_blip2(image_paths: list[Path], out_path: str, batch_size: int = 4):
+def caption_blip2(image_paths: List[Path], out_path: str, batch_size: int = 4):
     processor, model, device = load_blip2()
     captions = load_existing(out_path)
     todo = [p for p in image_paths if str(p) not in captions]
     print(f"BLIP-2: {len(todo)} images to caption ({len(captions)} already done)")
 
-    for i in tqdm(range(0, len(todo), batch_size), desc="BLIP-2"):
-        batch_paths = todo[i: i + batch_size]
-        images = [Image.open(p).convert("RGB") for p in batch_paths]
-        inputs = processor(images=images, return_tensors="pt").to(device)
+    # Process one image at a time; pass a text prompt so input_ids/image mask are
+    # populated correctly in transformers 4.40+ (avoids special_image_mask shape bug)
+    prompt = "Question: Describe the food in this image. Answer:"
+    for i, path in enumerate(tqdm(todo, desc="BLIP-2")):
+        image = Image.open(path).convert("RGB")
+        inputs = processor(images=image, text=prompt, return_tensors="pt").to(device)
         with torch.no_grad():
             generated_ids = model.generate(**inputs, max_new_tokens=80)
-        texts = processor.batch_decode(generated_ids, skip_special_tokens=True)
-        for path, text in zip(batch_paths, texts):
-            captions[str(path)] = text.strip()
-        # Save incrementally every batch
-        save_captions(captions, out_path)
+        text = processor.decode(generated_ids[0], skip_special_tokens=True)
+        # Strip the prompt from the output
+        if prompt in text:
+            text = text[text.index(prompt) + len(prompt):].strip()
+        captions[str(path)] = text.strip()
+        # Save incrementally every 100 images
+        if (i + 1) % 100 == 0:
+            save_captions(captions, out_path)
+    save_captions(captions, out_path)
 
     print(f"BLIP-2 captions saved to {out_path}")
     return captions
@@ -133,7 +140,7 @@ LLAVA_PROMPT = (
 )
 
 
-def caption_llava(image_paths: list[Path], out_path: str, batch_size: int = 1):
+def caption_llava(image_paths: List[Path], out_path: str, batch_size: int = 1):
     """LLaVA inference (batch_size=1 recommended for 7B on MPS/CPU)."""
     processor, model, device = load_llava()
     captions = load_existing(out_path)

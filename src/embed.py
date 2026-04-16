@@ -27,6 +27,7 @@ from pathlib import Path
 
 import torch
 from tqdm import tqdm
+from typing import List
 
 
 LABEL2IDX = {"Low": 0, "Medium": 1, "High": 2}
@@ -59,7 +60,7 @@ def food_class_from_path(path: str) -> str:
 # CLIP embeddings
 # ---------------------------------------------------------------------------
 
-def embed_clip(image_paths: list[str], label_map: dict, out_path: str, batch_size: int = 32):
+def embed_clip(image_paths: List[str], label_map: dict, out_path: str, batch_size: int = 32):
     import open_clip
     from PIL import Image
 
