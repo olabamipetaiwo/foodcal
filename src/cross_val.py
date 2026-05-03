@@ -46,9 +46,9 @@ RESULTS_DIR = "results"
 CAPTIONS_DIR = "captions"
 
 
-# ---------------------------------------------------------------------------
+# 
 # Embedding extraction for eval images
-# ---------------------------------------------------------------------------
+# 
 
 def get_device():
     if torch.cuda.is_available():
@@ -126,18 +126,18 @@ def load_eval_data(
     return variant_features, labels
 
 
-# ---------------------------------------------------------------------------
+# 
 # Data augmentation (embedding space)
-# ---------------------------------------------------------------------------
+# 
 
 def augment_features(X: torch.Tensor, noise_std: float = 0.02) -> torch.Tensor:
     """Add Gaussian noise to normalised feature vectors for data augmentation."""
     return X + torch.randn_like(X) * noise_std
 
 
-# ---------------------------------------------------------------------------
+# 
 # Single fold training
-# ---------------------------------------------------------------------------
+# 
 
 def _run_fold(
     X_train: torch.Tensor,
@@ -227,9 +227,9 @@ def train_fold(
     return acc, f1
 
 
-# ---------------------------------------------------------------------------
+# 
 # Cross-validation loop
-# ---------------------------------------------------------------------------
+# 
 
 ENSEMBLE_COMPONENTS = ["text_blip2", "multimodal_llava", "image_only"]
 
@@ -328,9 +328,9 @@ def run_cross_val(
     return results
 
 
-# ---------------------------------------------------------------------------
+# 
 # Main
-# ---------------------------------------------------------------------------
+# 
 
 ALL_VARIANT_CHOICES = VARIANTS + ["ensemble", "all"]
 

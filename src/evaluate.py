@@ -39,9 +39,9 @@ from dataset import LABEL2IDX, IDX2LABEL
 from model import build_model
 
 
-# ---------------------------------------------------------------------------
+# 
 # Load checkpoint
-# ---------------------------------------------------------------------------
+# 
 
 def load_checkpoint(ckpt_dir: str) -> dict:
     path = os.path.join(ckpt_dir, "best_model.pt")
@@ -57,9 +57,9 @@ def get_device():
     return torch.device("cpu")
 
 
-# ---------------------------------------------------------------------------
+# 
 # Feature extraction at inference time for eval set
-# ---------------------------------------------------------------------------
+# 
 
 def extract_clip_feature(image: Image.Image, device) -> torch.Tensor:
     import open_clip
@@ -155,9 +155,9 @@ def build_feature_vector(
         raise ValueError(f"Unknown variant: {variant}")
 
 
-# ---------------------------------------------------------------------------
+# 
 # Evaluate on the real-world eval set
-# ---------------------------------------------------------------------------
+# 
 
 def evaluate_on_eval_set(
     variant: str,
@@ -252,9 +252,9 @@ def evaluate_on_eval_set(
     return result
 
 
-# ---------------------------------------------------------------------------
+# 
 # McNemar's test
-# ---------------------------------------------------------------------------
+# 
 
 def mcnemar_test(preds_a: List[int], preds_b: List[int], targets: List[int]) -> dict:
     """
@@ -277,9 +277,9 @@ def mcnemar_test(preds_a: List[int], preds_b: List[int], targets: List[int]) -> 
     return {"statistic": round(statistic, 4), "p_value": round(p_value, 4), "b": b, "c": c}
 
 
-# ---------------------------------------------------------------------------
+# 
 # CLI
-# ---------------------------------------------------------------------------
+# 
 
 def parse_args():
     p = argparse.ArgumentParser(description="Evaluate a FoodCal model variant on the eval set")

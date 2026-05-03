@@ -31,9 +31,9 @@ from dataset import LABEL2IDX, IDX2LABEL
 from model import build_model
 from nutrition import lookup_kcal
 
-# ---------------------------------------------------------------------------
+# 
 # Load best variant config
-# ---------------------------------------------------------------------------
+# 
 
 RESULTS_DIR = "results"
 CAPTIONS_DIR = "captions"
@@ -102,9 +102,9 @@ def load_best_variant() -> tuple[str, dict]:
     return variant, ckpt
 
 
-# ---------------------------------------------------------------------------
+# 
 # Per-variant inference helpers (lazy-loaded on first call)
-# ---------------------------------------------------------------------------
+# 
 
 _clip_model = None
 _clip_preprocess = None
@@ -231,9 +231,9 @@ def build_input_feature(image: Image.Image, variant: str, device) -> tuple[torch
     return feat, caption
 
 
-# ---------------------------------------------------------------------------
+# 
 # Global model state
-# ---------------------------------------------------------------------------
+# 
 
 device = get_device()
 print(f"Using device: {device}")
@@ -251,9 +251,9 @@ except Exception as e:
     print(f"WARNING: Could not load model — {e}")
 
 
-# ---------------------------------------------------------------------------
+# 
 # Inference function
-# ---------------------------------------------------------------------------
+# 
 
 def predict(image: Image.Image) -> tuple[str, dict, str]:
     """
@@ -275,9 +275,9 @@ def predict(image: Image.Image) -> tuple[str, dict, str]:
     return label, confidences, caption
 
 
-# ---------------------------------------------------------------------------
+# 
 # Gradio UI
-# ---------------------------------------------------------------------------
+# 
 
 def gradio_predict(image):
     if image is None:

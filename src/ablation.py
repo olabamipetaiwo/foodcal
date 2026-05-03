@@ -30,9 +30,9 @@ RESULTS_DIR = "results"
 FIGURES_DIR = os.path.join(RESULTS_DIR, "figures")
 
 
-# ---------------------------------------------------------------------------
+# 
 # Plotting
-# ---------------------------------------------------------------------------
+# 
 
 def plot_grouped_bars(metrics: dict, out_dir: str):
     """Grouped bar chart: accuracy and macro-F1 for all variants."""
@@ -86,9 +86,9 @@ def plot_confusion_matrix(cm: list, variant: str, out_dir: str):
     print(f"Confusion matrix saved → {path}")
 
 
-# ---------------------------------------------------------------------------
+# 
 # Main ablation runner
-# ---------------------------------------------------------------------------
+# 
 
 def run_ablation(
     eval_dir: str,
@@ -179,9 +179,9 @@ def run_ablation(
     return final
 
 
-# ---------------------------------------------------------------------------
+# 
 # CLI
-# ---------------------------------------------------------------------------
+# 
 
 def parse_args():
     p = argparse.ArgumentParser(description="Run full ablation study across all trained variants")

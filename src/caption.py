@@ -30,9 +30,9 @@ from PIL import Image
 from tqdm import tqdm
 
 
-# ---------------------------------------------------------------------------
+# 
 # Helpers
-# ---------------------------------------------------------------------------
+# 
 
 def get_device():
     if torch.cuda.is_available():
@@ -65,9 +65,9 @@ def save_captions(captions: dict, out_path: str):
         json.dump(captions, f, indent=2)
 
 
-# ---------------------------------------------------------------------------
+# 
 # BLIP-2
-# ---------------------------------------------------------------------------
+# 
 
 def load_blip2():
     from transformers import Blip2Processor, Blip2ForConditionalGeneration
@@ -113,9 +113,9 @@ def caption_blip2(image_paths: List[Path], out_path: str, batch_size: int = 4, f
     return captions
 
 
-# ---------------------------------------------------------------------------
+# 
 # LLaVA
-# ---------------------------------------------------------------------------
+# 
 
 def load_llava():
     from transformers import LlavaForConditionalGeneration, AutoProcessor
@@ -170,9 +170,9 @@ def caption_llava(image_paths: List[Path], out_path: str, batch_size: int = 1, f
     return captions
 
 
-# ---------------------------------------------------------------------------
+# 
 # CLI
-# ---------------------------------------------------------------------------
+# 
 
 def parse_args():
     p = argparse.ArgumentParser(description="Generate food captions via BLIP-2 or LLaVA")

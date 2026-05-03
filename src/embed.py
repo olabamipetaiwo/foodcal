@@ -33,9 +33,9 @@ from typing import List
 LABEL2IDX = {"Low": 0, "Medium": 1, "High": 2}
 
 
-# ---------------------------------------------------------------------------
+# 
 # Utilities
-# ---------------------------------------------------------------------------
+# 
 
 def get_device():
     if torch.cuda.is_available():
@@ -56,9 +56,9 @@ def food_class_from_path(path: str) -> str:
     return Path(path).parent.name
 
 
-# ---------------------------------------------------------------------------
+# 
 # CLIP embeddings
-# ---------------------------------------------------------------------------
+# 
 
 def embed_clip(image_paths: List[str], label_map: dict, out_path: str, batch_size: int = 32):
     import open_clip
@@ -116,9 +116,9 @@ def embed_clip(image_paths: List[str], label_map: dict, out_path: str, batch_siz
     return out
 
 
-# ---------------------------------------------------------------------------
+# 
 # Sentence-BERT embeddings
-# ---------------------------------------------------------------------------
+# 
 
 def embed_sbert(caption_file: str, label_map: dict, out_path: str, batch_size: int = 64):
     from sentence_transformers import SentenceTransformer
@@ -158,9 +158,9 @@ def embed_sbert(caption_file: str, label_map: dict, out_path: str, batch_size: i
     return out
 
 
-# ---------------------------------------------------------------------------
+# 
 # CLI
-# ---------------------------------------------------------------------------
+# 
 
 def parse_args():
     p = argparse.ArgumentParser(description="Precompute CLIP and Sentence-BERT embeddings")
