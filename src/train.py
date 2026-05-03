@@ -46,9 +46,9 @@ from dataset import FoodCalDataset, VARIANTS, LABEL2IDX, load_embedding_store
 from model import build_model
 
 
-# ---------------------------------------------------------------------------
+# 
 # Defaults
-# ---------------------------------------------------------------------------
+# 
 EMBED_DIR = "embeddings"
 RESULTS_DIR = "results"
 DEFAULT_EPOCHS = 30
@@ -59,9 +59,9 @@ VAL_SPLIT = 0.15
 SEED = 42
 
 
-# ---------------------------------------------------------------------------
+# 
 # Helpers
-# ---------------------------------------------------------------------------
+# 
 
 def get_device():
     if torch.cuda.is_available():
@@ -109,9 +109,9 @@ def accuracy(preds, targets):
     return (preds == targets).float().mean().item()
 
 
-# ---------------------------------------------------------------------------
+# 
 # Training loop
-# ---------------------------------------------------------------------------
+# 
 
 def train_variant(
     variant: str,
@@ -241,9 +241,9 @@ def train_variant(
     return best_ckpt
 
 
-# ---------------------------------------------------------------------------
+# 
 # CLI
-# ---------------------------------------------------------------------------
+# 
 
 def parse_args():
     p = argparse.ArgumentParser(description="Train FoodCal model variants")

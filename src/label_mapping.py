@@ -15,10 +15,10 @@ Run this script directly to write data/labels.json.
 import json
 import os
 
-# ---------------------------------------------------------------------------
+# 
 # USDA-referenced approximate kcal per typical serving for each Food-101 class
 # Sources: USDA FoodData Central (fdc.nal.usda.gov) and standard portion sizes
-# ---------------------------------------------------------------------------
+# 
 FOOD101_KCAL = {
     "apple_pie": 296,
     "baby_back_ribs": 700,

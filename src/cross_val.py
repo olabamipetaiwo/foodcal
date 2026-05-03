@@ -46,9 +46,9 @@ RESULTS_DIR = "results"
 CAPTIONS_DIR = "captions"
 
 
-# ---------------------------------------------------------------------------
+# 
 # Embedding extraction for eval images
-# ---------------------------------------------------------------------------
+# 
 
 def get_device():
     if torch.cuda.is_available():
@@ -126,9 +126,9 @@ def load_eval_data(
     return variant_features, labels
 
 
-# ---------------------------------------------------------------------------
+# 
 # Single fold training
-# ---------------------------------------------------------------------------
+# 
 
 def train_fold(
     X_train: torch.Tensor,
@@ -182,9 +182,9 @@ def train_fold(
     return acc, f1
 
 
-# ---------------------------------------------------------------------------
+# 
 # Cross-validation loop
-# ---------------------------------------------------------------------------
+# 
 
 def run_cross_val(
     variant_features: Dict[str, torch.Tensor],
@@ -226,9 +226,9 @@ def run_cross_val(
     return results
 
 
-# ---------------------------------------------------------------------------
+# 
 # Main
-# ---------------------------------------------------------------------------
+# 
 
 def parse_args():
     p = argparse.ArgumentParser(description="5-fold CV on real-world eval images")
