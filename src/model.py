@@ -48,7 +48,7 @@ class MLPClassifier(nn.Module):
         return self.net(x)
 
 
-def build_model(input_dim: int, num_hidden_layers: int = 2) -> MLPClassifier:
+def build_model(input_dim: int, num_hidden_layers: int = 2, dropout: float = 0.3) -> MLPClassifier:
     """
     Factory that matches the two MLP depth configurations in the ablation.
 
@@ -61,4 +61,4 @@ def build_model(input_dim: int, num_hidden_layers: int = 2) -> MLPClassifier:
         hidden_dims = [512, 256]
     else:
         raise ValueError(f"num_hidden_layers must be 1 or 2, got {num_hidden_layers}")
-    return MLPClassifier(input_dim=input_dim, hidden_dims=hidden_dims)
+    return MLPClassifier(input_dim=input_dim, hidden_dims=hidden_dims, dropout=dropout)

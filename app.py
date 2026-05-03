@@ -192,8 +192,9 @@ def generate_blip2_caption(image: Image.Image, device) -> str:
 def generate_llava_caption(image: Image.Image, device) -> str:
     proc, model = get_llava(device)
     prompt = (
-        "USER: <image>\nDescribe this food dish in one sentence, focusing on the "
-        "ingredients, cooking method, and approximate portion size.\nASSISTANT:"
+        "USER: <image>\nDescribe this meal's ingredients, cooking method, and portion size. "
+        "Focus on factors that affect calorie content such as frying, heavy sauces, "
+        "large portions, or fatty meats.\nASSISTANT:"
     )
     inputs = proc(text=prompt, images=image, return_tensors="pt").to(device)
     with torch.no_grad():

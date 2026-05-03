@@ -13,7 +13,7 @@ if [ ! -d "data/eval" ] || [ -z "$(ls -A data/eval 2>/dev/null)" ]; then
     exit 1
 fi
 
-echo "==> Generating eval captions (model=$MODEL)..."
-python src/caption.py --model "$MODEL" --image_dir data/eval
+echo "==> Generating eval captions (model=$MODEL, force regenerate)..."
+python src/caption.py --model "$MODEL" --image_dir data/eval --force
 
 echo "Done. Next: run scripts/07_ablation.sh"

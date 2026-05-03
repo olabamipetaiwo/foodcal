@@ -52,8 +52,8 @@ def collect_images(image_dir: str) -> List[Path]:
     return images
 
 
-def load_existing(out_path: str) -> dict:
-    if os.path.exists(out_path):
+def load_existing(out_path: str, force: bool = False) -> dict:
+    if not force and os.path.exists(out_path):
         with open(out_path) as f:
             return json.load(f)
     return {}
@@ -85,9 +85,9 @@ def load_blip2():
     return processor, model, device
 
 
-def caption_blip2(image_paths: List[Path], out_path: str, batch_size: int = 4):
+def caption_blip2(image_paths: List[Path], out_path: str, batch_size: int = 4, force: bool = False):
     processor, model, device = load_blip2()
-    captions = load_existing(out_path)
+    captions = load_existing(out_path, force=force)
     todo = [p for p in image_paths if str(p) not in captions]
     print(f"BLIP-2: {len(todo)} images to caption ({len(captions)} already done)")
 
@@ -139,15 +139,16 @@ def load_llava():
 
 LLAVA_PROMPT = (
     "USER: <image>\n"
-    "Describe this food dish in one sentence, focusing on the ingredients, "
-    "cooking method, and approximate portion size.\nASSISTANT:"
+    "Describe this meal's ingredients, cooking method, and portion size. "
+    "Focus on factors that affect calorie content such as frying, heavy sauces, "
+    "large portions, or fatty meats.\nASSISTANT:"
 )
 
 
-def caption_llava(image_paths: List[Path], out_path: str, batch_size: int = 1):
+def caption_llava(image_paths: List[Path], out_path: str, batch_size: int = 1, force: bool = False):
     """LLaVA inference (batch_size=1 recommended for 7B on MPS/CPU)."""
     processor, model, device = load_llava()
-    captions = load_existing(out_path)
+    captions = load_existing(out_path, force=force)
     todo = [p for p in image_paths if str(p) not in captions]
     print(f"LLaVA: {len(todo)} images to caption ({len(captions)} already done)")
 
@@ -184,6 +185,8 @@ def parse_args():
                    help="Batch size for BLIP-2 (LLaVA always uses 1)")
     p.add_argument("--limit", type=int, default=None,
                    help="Cap number of images (for quick testing)")
+    p.add_argument("--force", action="store_true",
+                   help="Ignore cached captions and regenerate everything")
     return p.parse_args()
 
 
@@ -198,7 +201,7 @@ if __name__ == "__main__":
     llava_out = os.path.join(args.out_dir, "llava_captions.json")
 
     if args.model in ("blip2", "both"):
-        caption_blip2(images, blip2_out, batch_size=args.batch_size)
+        caption_blip2(images, blip2_out, batch_size=args.batch_size, force=args.force)
 
     if args.model in ("llava", "both"):
-        caption_llava(images, llava_out)
+        caption_llava(images, llava_out, force=args.force)

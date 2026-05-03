@@ -127,26 +127,46 @@ def load_eval_data(
 
 
 # ---------------------------------------------------------------------------
+# Data augmentation (embedding space)
+# ---------------------------------------------------------------------------
+
+def augment_features(X: torch.Tensor, noise_std: float = 0.02) -> torch.Tensor:
+    """Add Gaussian noise to normalised feature vectors for data augmentation."""
+    return X + torch.randn_like(X) * noise_std
+
+
+# ---------------------------------------------------------------------------
 # Single fold training
 # ---------------------------------------------------------------------------
 
-def train_fold(
+def _run_fold(
     X_train: torch.Tensor,
     y_train: np.ndarray,
     X_test: torch.Tensor,
     y_test: np.ndarray,
     device,
-    epochs: int = 50,
-    lr: float = 1e-3,
-    batch_size: int = 16,
-) -> Tuple[float, float]:
-    """Train MLP on one fold, return (accuracy, macro_f1) on test fold."""
+    epochs: int,
+    lr: float,
+    batch_size: int,
+    augment: bool,
+    noise_std: float,
+    dropout: float = 0.45,
+) -> Tuple[float, float, np.ndarray]:
+    """
+    Train MLP on one fold.
+
+    Returns (accuracy, macro_f1, probs) where probs is shape (n_test, 3).
+    """
     input_dim = X_train.shape[1]
-    model = build_model(input_dim, num_hidden_layers=2).to(device)
+    model = build_model(input_dim, num_hidden_layers=2, dropout=dropout).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
     criterion = nn.CrossEntropyLoss()
 
-    train_ds = TensorDataset(X_train.to(device), torch.tensor(y_train, dtype=torch.long).to(device))
+    train_ds = TensorDataset(
+        X_train.to(device),
+        torch.tensor(y_train, dtype=torch.long).to(device),
+    )
     loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
 
     best_acc = 0.0
@@ -155,10 +175,13 @@ def train_fold(
     for epoch in range(epochs):
         model.train()
         for xb, yb in loader:
+            if augment:
+                xb = augment_features(xb, noise_std)
             optimizer.zero_grad()
             loss = criterion(model(xb), yb)
             loss.backward()
             optimizer.step()
+        scheduler.step()
 
         # Evaluate on test fold each epoch to pick best checkpoint
         model.eval()
@@ -175,16 +198,41 @@ def train_fold(
     model.eval()
     with torch.no_grad():
         logits = model(X_test.to(device))
-        preds = logits.argmax(dim=1).cpu().numpy()
+        probs = torch.softmax(logits, dim=1).cpu().numpy()
+        preds = probs.argmax(axis=1)
 
     acc = accuracy_score(y_test, preds)
     f1 = f1_score(y_test, preds, average="macro", zero_division=0)
+    return acc, f1, probs
+
+
+def train_fold(
+    X_train: torch.Tensor,
+    y_train: np.ndarray,
+    X_test: torch.Tensor,
+    y_test: np.ndarray,
+    device,
+    epochs: int = 150,
+    lr: float = 1e-3,
+    batch_size: int = 16,
+    augment: bool = True,
+    noise_std: float = 0.02,
+    dropout: float = 0.45,
+) -> Tuple[float, float]:
+    """Train MLP on one fold, return (accuracy, macro_f1) on test fold."""
+    acc, f1, _ = _run_fold(
+        X_train, y_train, X_test, y_test,
+        device, epochs, lr, batch_size, augment, noise_std, dropout,
+    )
     return acc, f1
 
 
 # ---------------------------------------------------------------------------
 # Cross-validation loop
 # ---------------------------------------------------------------------------
+
+ENSEMBLE_COMPONENTS = ["text_blip2", "multimodal_llava", "image_only"]
+
 
 def run_cross_val(
     variant_features: Dict[str, torch.Tensor],
@@ -193,11 +241,18 @@ def run_cross_val(
     n_folds: int,
     epochs: int,
     device,
+    augment: bool = True,
+    noise_std: float = 0.02,
+    dropout: float = 0.45,
 ) -> Dict:
     skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
     results = {}
 
-    for variant in variants:
+    # Separate ensemble from individual variants
+    run_ensemble = "ensemble" in variants
+    individual = [v for v in variants if v != "ensemble"]
+
+    for variant in individual:
         X = variant_features[variant]
         print(f"\n=== {variant} (input_dim={X.shape[1]}) ===")
         fold_accs, fold_f1s = [], []
@@ -205,7 +260,10 @@ def run_cross_val(
         for fold_idx, (train_idx, test_idx) in enumerate(skf.split(X, labels)):
             X_train, X_test = X[train_idx], X[test_idx]
             y_train, y_test = labels[train_idx], labels[test_idx]
-            acc, f1 = train_fold(X_train, y_train, X_test, y_test, device, epochs=epochs)
+            acc, f1 = train_fold(
+                X_train, y_train, X_test, y_test, device,
+                epochs=epochs, augment=augment, noise_std=noise_std, dropout=dropout,
+            )
             fold_accs.append(acc)
             fold_f1s.append(f1)
             print(f"  Fold {fold_idx+1}/{n_folds}: acc={acc:.4f}  f1={f1:.4f}")
@@ -223,6 +281,50 @@ def run_cross_val(
             "fold_f1s":        [round(f, 4) for f in fold_f1s],
         }
 
+    # Ensemble: average softmax probs from text_llava + multimodal_llava + image_only
+    if run_ensemble:
+        print(f"\n=== ensemble ({' + '.join(ENSEMBLE_COMPONENTS)}) ===")
+        # Use the first component as the reference for fold splits
+        X_ref = variant_features[ENSEMBLE_COMPONENTS[0]]
+        fold_accs, fold_f1s = [], []
+
+        for fold_idx, (train_idx, test_idx) in enumerate(skf.split(X_ref, labels)):
+            y_train = labels[train_idx]
+            y_test  = labels[test_idx]
+            all_probs: List[np.ndarray] = []
+
+            for comp in ENSEMBLE_COMPONENTS:
+                X = variant_features[comp]
+                X_train, X_test = X[train_idx], X[test_idx]
+                _, _, probs = _run_fold(
+                    X_train, y_train, X_test, y_test, device,
+                    epochs=epochs, lr=1e-3, batch_size=16,
+                    augment=augment, noise_std=noise_std, dropout=dropout,
+                )
+                all_probs.append(probs)
+
+            avg_probs = np.mean(all_probs, axis=0)   # (n_test, 3)
+            preds = avg_probs.argmax(axis=1)
+            acc = accuracy_score(y_test, preds)
+            f1  = f1_score(y_test, preds, average="macro", zero_division=0)
+            fold_accs.append(acc)
+            fold_f1s.append(f1)
+            print(f"  Fold {fold_idx+1}/{n_folds}: acc={acc:.4f}  f1={f1:.4f}")
+
+        mean_acc = float(np.mean(fold_accs))
+        mean_f1  = float(np.mean(fold_f1s))
+        std_acc  = float(np.std(fold_accs))
+        print(f"  Mean: acc={mean_acc:.4f} ± {std_acc:.4f}  f1={mean_f1:.4f}")
+
+        results["ensemble"] = {
+            "mean_accuracy":   round(mean_acc, 4),
+            "std_accuracy":    round(std_acc, 4),
+            "mean_macro_f1":   round(mean_f1, 4),
+            "fold_accuracies": [round(a, 4) for a in fold_accs],
+            "fold_f1s":        [round(f, 4) for f in fold_f1s],
+            "components":      ENSEMBLE_COMPONENTS,
+        }
+
     return results
 
 
@@ -230,16 +332,26 @@ def run_cross_val(
 # Main
 # ---------------------------------------------------------------------------
 
+ALL_VARIANT_CHOICES = VARIANTS + ["ensemble", "all"]
+
+
 def parse_args():
     p = argparse.ArgumentParser(description="5-fold CV on real-world eval images")
     p.add_argument("--eval_dir",       default="data/eval")
     p.add_argument("--label_file",     default="data/eval/labels_eval.json")
     p.add_argument("--caption_blip2",  default="captions/blip2_captions.json")
     p.add_argument("--caption_llava",  default="captions/llava_captions.json")
-    p.add_argument("--variant",        default="all", choices=VARIANTS + ["all"])
+    p.add_argument("--variant",        default="all", choices=ALL_VARIANT_CHOICES)
     p.add_argument("--n_folds",        type=int, default=5)
-    p.add_argument("--epochs",         type=int, default=60)
+    p.add_argument("--epochs",         type=int, default=150)
+    p.add_argument("--dropout",        type=float, default=0.45)
     p.add_argument("--out",            default="results/crossval_metrics.json")
+    p.add_argument("--augment",        action="store_true", default=True,
+                   help="Add Gaussian noise to embeddings during training (default: on)")
+    p.add_argument("--no_augment",     dest="augment", action="store_false",
+                   help="Disable embedding augmentation")
+    p.add_argument("--noise_std",      type=float, default=0.02,
+                   help="Std dev of Gaussian noise for augmentation (default: 0.02)")
     return p.parse_args()
 
 
@@ -247,8 +359,13 @@ if __name__ == "__main__":
     args = parse_args()
     device = get_device()
     print(f"Device: {device}")
+    print(f"Augmentation: {'ON' if args.augment else 'OFF'}  noise_std={args.noise_std}  dropout={args.dropout}  epochs={args.epochs}")
 
-    variants = VARIANTS if args.variant == "all" else [args.variant]
+    # "all" → run every individual variant + ensemble
+    if args.variant == "all":
+        variants = VARIANTS + ["ensemble"]
+    else:
+        variants = [args.variant]
 
     variant_features, labels = load_eval_data(
         eval_dir=args.eval_dir,
@@ -269,6 +386,9 @@ if __name__ == "__main__":
         n_folds=args.n_folds,
         epochs=args.epochs,
         device=device,
+        augment=args.augment,
+        noise_std=args.noise_std,
+        dropout=args.dropout,
     )
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)

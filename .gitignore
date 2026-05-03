@@ -51,4 +51,4 @@ flagged/
 
 
 # tmux new-session -d -s foodcal && tmux send-keys -t foodcal "cd /data/uzoamakaezeakunne/foodcal && source
-#   foodcal_env/bin/activate && CUDA_VISIBLE_DEVICES=1 bash scripts/06_caption_eval.sh" Enter && tmux attach -t foodcaldata/eval/*.jpg                                                                        data/eval/*.JPG                                                                              data/eval/*.jpeg                                                                             data/eval/*.WEBP  data/eval/*.webp                                                                             data/eval/*.heic                                                                           data/eval/*.png   data/eval/*.PNG
+#   foodcal_env/bin/activate && CUDA_VISIBLE_DEVICES=1 bash scripts/06_caption_eval.sh" Enter && tmux attach -t foodcal
