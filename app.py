@@ -348,3 +348,6 @@ with gr.Blocks(title="FoodCal — Calorie Range Estimator") as demo:
 
 if __name__ == "__main__":
     demo.launch(share=True)
+
+
+
